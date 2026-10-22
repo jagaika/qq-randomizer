@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Questionable Quartets Randomizer</title>
+<style>
+@font-face{font-family:Splatoon1;src:url(https://jamesomckenna.github.io/SplatRandomiser3/dist/fonts/woff2/Splatoon1.woff2) format("woff2")}
+@font-face{font-family:Splatoon2;src:url(https://jamesomckenna.github.io/SplatRandomiser3/dist/fonts/woff2/Splatoon2.woff2) format("woff2")}
+:root{--bg:#2a2f35;--gold:#dfaf00;--ink:#161616;--panel:#282828;--fg:#fff}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Splatoon2,Arial,sans-serif;font-size:24px;min-height:100vh;padding:24px max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px));box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.weapon{max-width:768px;width:100%}
+img{display:block;width:100%;height:auto}
+.head{background:var(--gold);border-radius:30px;padding:1% 4%}
+.name{font-family:Splatoon1,Arial,sans-serif;font-size:min(39px,5.1vw);letter-spacing:-1px;word-spacing:-4px;padding:1% 3.9% 0;background:var(--ink);border-radius:5px;min-height:1.4em;line-height:1.5}
+.details{display:grid;grid-template-columns:37% 63%}
+.pic{margin:10% 8% 0 19%;background:#ddd;border-radius:30%;aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+.pic img{filter:drop-shadow(0 5px 0 #888)}
+.stats{font-size:min(26px,3.4vw);margin:2.5% 6.4% 0 4.8%;line-height:165%;background:var(--panel);border-radius:5px}
+.stat{padding-right:7%;display:grid;grid-template-columns:48% 52%}
+.lab{padding-right:2%;text-align:right}
+.bar{display:block;overflow:hidden;background:var(--ink);margin:4% 0;border-radius:2px}
+.val{width:0;height:100%;background:var(--gold);border-radius:2px;transition:width .35s}
+.sub,.sp{display:flex;margin:1.2% 6.4% 2% 2.6%;height:27.1%;position:relative}
+.sub::before,.sp::before{content:"";position:absolute;right:0;bottom:0;width:90%;height:94%;background:var(--panel);border-radius:0 5px 5px 0;z-index:-1}
+.ic{display:block;width:19.5%;background:var(--ink);border-radius:30%}
+.ic img{margin:9% 13% 0 13%;width:74%}
+.sn{display:block;width:80.5%;font-size:min(34px,4.5vw);padding-top:8.8%;padding-left:1.7%;line-height:1}
+.points{display:flex;font-size:min(39px,5.1vw);letter-spacing:-.7px;word-spacing:4px;margin:4.4% 4% 0;padding:2% 0;line-height:1;background:var(--panel);border-radius:5px}
+.points .l{width:50%;padding-left:3.7%}.points .v{width:50%;text-align:right;padding-right:8.2%}
+.foot{padding-top:40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.btn{font:inherit;padding:16px 36px;font-size:24px;background:var(--gold);color:var(--ink);border:0;border-radius:5px;cursor:pointer}
+.btn:hover:not(:disabled),.btn:focus-visible{background:#b89000;outline:none}
+.btn:disabled{opacity:.5;cursor:default}
+.note{font-family:Arial,sans-serif;font-size:14px;color:#aab;margin:0;min-height:1.3em}
+.reset{background:none;border:0;color:#aab;font:14px Arial,sans-serif;text-decoration:underline;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.val{transition:none}}
+</style></head><body>
+<div class="weapon" aria-live="polite">
+  <div class="head"><div class="name" id="name">Press Randomise</div></div>
+  <div class="details">
+    <div class="pic" id="pic"></div>
+    <div>
+      <div class="stats">
+        <div class="stat"><div class="lab" id="l0">Range</div><div class="bar"><div class="val" id="v0"></div></div></div>
+        <div class="stat"><div class="lab" id="l1">Damage</div><div class="bar"><div class="val" id="v1"></div></div></div>
+        <div class="stat"><div class="lab" id="l2">Handling</div><div class="bar"><div class="val" id="v2"></div></div></div>
+      </div>
+      <div class="sub"><div class="ic"><img id="si" alt=""></div><div class="sn" id="sn">Sub Weapon</div></div>
+      <div class="sp"><div class="ic"><img id="pi" alt=""></div><div class="sn" id="pn">Special Weapon</div></div>
+    </div>
+  </div>
+  <div class="points"><div class="l">Points for Special</div><div class="v" id="pts">0p</div></div>
+</div>
+<div class="foot">
+  <button class="btn" id="go" type="button">Randomise</button>
+  <p class="note" id="note">24 weapons left. Any kit is allowed.</p>
+  <button class="reset" id="reset" type="button">Reset (allow all weapons again)</button>
+  <p class="note">Card style, data and images from SplatRandomiser3 by jamesomckenna. Splatoon is a Nintendo property. Unofficial fan tool.</p>
+</div>
+<script>
+const B="https://jamesomckenna.github.io/SplatRandomiser3/dist/";const POOL=[{"name":"Sploosh-o-matic","img":"images/weapons/Sploosh-o-matic.webp","stat_names":["Range","Damage","Fire Rate"],"stats":[12,52,75],"sub":"Curling Bomb","subimg":"images/sub/Curling_Bomb.webp","sp":"Ultra Stamp","spimg":"images/special/Ultra_Stamp.webp","pts":180},{"name":"Splattershot","img":"images/weapons/Splattershot.webp","stat_names":["Range","Damage","Fire Rate"],"stats":[50,47,60],"sub":"Suction Bomb","subimg":"images/sub/Suction_Bomb.webp","sp":"Trizooka","spimg":"images/special/Trizooka.webp","pts":210},{"name":"Splattershot Pro","img":"images/weapons/Splattershot_Pro.webp","stat_names":["Range","Damage","Fire Rate"],"stats":[70,60,30],"sub":"Angle Shooter","subimg":"images/sub/Angle_Shooter.webp","sp":"Crab Tank","spimg":"images/special/Crab_Tank.webp","pts":180},{"name":"H-3 Nozzlenose","img":"images/weapons/H-3_Nozzlenose.webp","stat_names":["Range","Damage","Fire Rate"],"stats":[70,58,30],"sub":"Point Sensor","subimg":"images/sub/Point_Sensor.webp","sp":"Tacticooler","spimg":"images/special/Tacticooler.webp","pts":190},{"name":"Squeezer","img":"images/weapons/Squeezer.webp","stat_names":["Range","Damage","Fire Rate"],"stats":[77,52,30],"sub":"Splash Wall","subimg":"images/sub/Splash_Wall.webp","sp":"Trizooka","spimg":"images/special/Trizooka.webp","pts":220},{"name":"Splat Roller","img":"images/weapons/Splat_Roller.webp","stat_names":["Range","Ink Speed","Handling"],"stats":[48,45,55],"sub":"Curling Bomb","subimg":"images/sub/Curling_Bomb.webp","sp":"Big Bubbler","spimg":"images/special/Big_Bubbler.webp","pts":180},{"name":"Big Swig Roller","img":"images/weapons/Big_Swig_Roller.webp","stat_names":["Range","Ink Speed","Handling"],"stats":[56,54,60],"sub":"Splash Wall","subimg":"images/sub/Splash_Wall.webp","sp":"Ink Vac","spimg":"images/special/Ink_Vac.webp","pts":180},{"name":"Luna Blaster","img":"images/weapons/Luna_Blaster.webp","stat_names":["Range","Impact","Fire Rate"],"stats":[18,70,30],"sub":"Splat Bomb","subimg":"images/sub/Splat_Bomb.webp","sp":"Zipcaster","spimg":"images/special/Zipcaster.webp","pts":170},{"name":"Octobrush","img":"images/weapons/Octobrush.webp","stat_names":["Range","Ink Speed","Handling"],"stats":[23,80,85],"sub":"Suction Bomb","subimg":"images/sub/Suction_Bomb.webp","sp":"Zipcaster","spimg":"images/special/Zipcaster.webp","pts":190},{"name":"Classic Squiffer","img":"images/weapons/Classic_Squiffer.webp","stat_names":["Range","Charge Speed","Mobility"],"stats":[75,70,60],"sub":"Point Sensor","subimg":"images/sub/Point_Sensor.webp","sp":"Big Bubbler","spimg":"images/special/Big_Bubbler.webp","pts":190},{"name":"E-Liter 4K","img":"images/weapons/E-liter_4K.webp","stat_names":["Range","Charge Speed","Mobility"],"stats":[96,20,15],"sub":"Ink Mine","subimg":"images/sub/Ink_Mine.webp","sp":"Wave Breaker","spimg":"images/special/Wave_Breaker.webp","pts":210},{"name":"Goo Tuber","img":"images/weapons/Goo_Tuber.webp","stat_names":["Range","Charge Speed","Mobility"],"stats":[78,38,70],"sub":"Torpedo","subimg":"images/sub/Torpedo.webp","sp":"Tenta Missiles","spimg":"images/special/Tenta_Missiles.webp","pts":200},{"name":"Bamboozler 14 Mk I","img":"images/weapons/Bamboozler_14_Mk_I.webp","stat_names":["Range","Charge Speed","Mobility"],"stats":[78,90,80],"sub":"Autobomb","subimg":"images/sub/Autobomb.webp","sp":"Killer Wail 5.1","spimg":"images/special/Killer_Wail_5.1.webp","pts":190},{"name":"Slosher","img":"images/weapons/Slosher.webp","stat_names":["Range","Damage","Handling"],"stats":[58,85,50],"sub":"Splat Bomb","subimg":"images/sub/Splat_Bomb.webp","sp":"Triple Inkstrike","spimg":"images/special/Triple_Inkstrike.webp","pts":210},{"name":"Mini Splatling","img":"images/weapons/Mini_Splatling.webp","stat_names":["Range","Charge Speed","Mobility"],"stats":[62,80,90],"sub":"Burst Bomb","subimg":"images/sub/Burst_Bomb.webp","sp":"Ultra Stamp","spimg":"images/special/Ultra_Stamp.webp","pts":190},{"name":"Ballpoint Splatling","img":"images/weapons/Ballpoint_Splatling.webp","stat_names":["Range","Charge Speed","Mobility"],"stats":[84,18,60],"sub":"Fizzy Bomb","subimg":"images/sub/Fizzy_Bomb.webp","sp":"Inkjet","spimg":"images/special/Inkjet.webp","pts":210},{"name":"Splat Dualies","img":"images/weapons/Splat_Dualies.webp","stat_names":["Range","Damage","Mobility"],"stats":[50,29,60],"sub":"Suction Bomb","subimg":"images/sub/Suction_Bomb.webp","sp":"Crab Tank","spimg":"images/special/Crab_Tank.webp","pts":190},{"name":"Dualie Squelchers","img":"images/weapons/Dualie_Squelchers.webp","stat_names":["Range","Damage","Mobility"],"stats":[70,28,70],"sub":"Splat Bomb","subimg":"images/sub/Splat_Bomb.webp","sp":"Wave Breaker","spimg":"images/special/Wave_Breaker.webp","pts":200},{"name":"Light Tetra Dualies","img":"images/weapons/Light_Tetra_Dualies.webp","stat_names":["Range","Damage","Mobility"],"stats":[58,22,90],"sub":"Sprinkler","subimg":"images/sub/Sprinkler.webp","sp":"Zipcaster","spimg":"images/special/Zipcaster.webp","pts":190},{"name":"Splat Brella","img":"images/weapons/Splat_Brella.webp","stat_names":["Range","Damage","Durability"],"stats":[43,65,60],"sub":"Sprinkler","subimg":"images/sub/Sprinkler.webp","sp":"Triple Inkstrike","spimg":"images/special/Triple_Inkstrike.webp","pts":210},{"name":"Tenta Brella","img":"images/weapons/Tenta_Brella.webp","stat_names":["Range","Damage","Durability"],"stats":[62,85,85],"sub":"Squid Beakon","subimg":"images/sub/Squid_Beakon.webp","sp":"Ink Vac","spimg":"images/special/Ink_Vac.webp","pts":190},{"name":"Undercover Brella","img":"images/weapons/Undercover_Brella.webp","stat_names":["Range","Damage","Durability"],"stats":[50,30,25],"sub":"Ink Mine","subimg":"images/sub/Ink_Mine.webp","sp":"Reefslider","spimg":"images/special/Reefslider.webp","pts":180},{"name":"Splatana Stamper","img":"images/weapons/Splatana_Stamper.webp","stat_names":["Range","Damage","Handling"],"stats":[75,43,60],"sub":"Burst Bomb","subimg":"images/sub/Burst_Bomb.webp","sp":"Zipcaster","spimg":"images/special/Zipcaster.webp","pts":210},{"name":"Splatana Wiper","img":"images/weapons/Splatana_Wiper.webp","stat_names":["Range","Damage","Handling"],"stats":[58,29,75],"sub":"Torpedo","subimg":"images/sub/Torpedo.webp","sp":"Ultra Stamp","spimg":"images/special/Ultra_Stamp.webp","pts":190}];
+const $=i=>document.getElementById(i);
+const used=new Set();let busy=false;
+const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function rnd(n){if(window.crypto&&crypto.getRandomValues){const a=new Uint32Array(1),l=Math.floor(4294967296/n)*n;do{crypto.getRandomValues(a)}while(a[0]>=l);return a[0]%n}return Math.floor(Math.random()*n)}
+const left=()=>POOL.map((w,i)=>i).filter(i=>!used.has(i));
+function note(){$("note").textContent=left().length+" of "+POOL.length+" weapons left. Any kit is allowed."}
+function show(w){
+  $("name").textContent=w.name;
+  $("pic").innerHTML='<img alt="'+w.name+'" src="'+B+w.img+'">';
+  for(let i=0;i<3;i++){$("l"+i).textContent=w.stat_names[i];$("v"+i).style.width=w.stats[i]+"%"}
+  $("si").src=B+w.subimg;$("sn").textContent=w.sub;$("pi").src=B+w.spimg;$("pn").textContent=w.sp;$("pts").textContent=w.pts+"p";
+}
+function roll(){
+  if(busy)return;const c=left();
+  if(!c.length){$("note").textContent="All weapons have been picked. Press Reset to start over.";return}
+  const k=c[rnd(c.length)];
+  const done=()=>{used.add(k);show(POOL[k]);busy=false;$("go").disabled=false;note()};
+  busy=true;$("go").disabled=true;
+  if(reduce){done();return}
+  let s=0;(function t(){if(s>=10){done();return}show(POOL[rnd(POOL.length)]);s++;setTimeout(t,60+s*18)})();
+}
+$("go").addEventListener("click",roll);
+$("reset").addEventListener("click",()=>{used.clear();note()});
+</script>
+</body></html>
